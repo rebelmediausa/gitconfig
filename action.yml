@@ -29,9 +29,12 @@ runs:
 
     - name: Import GPG key
       if: ${{ inputs.git_gpg_key_id != '' }}
+      shell: bash
       run: echo ${{ inputs.git_gpg_key }} | base64 --decode | gpg --batch --import
 
+
     - name: Setup GIT
+      shell: bash
       run: |
         git config user.name ${{ inputs.git_user_name }}
         git config user.email ${{ inputs.git_user_email }}
