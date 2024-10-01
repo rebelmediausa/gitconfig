@@ -1,0 +1,41 @@
+---
+name: 'Rebel Media GIT Config'
+description: 'Configure GIT to use a set user account and sign with GPG.'
+author: 'Rebel Media'
+
+branding:
+  icon: terminal
+  color: black
+
+inputs:
+  git_user_name:
+    type: string
+    description: GIT username
+    required: true
+  git_user_email:
+    type: string
+    description: GIT user email
+    required: true
+  git_gpg_key:
+    type: string
+    description: GPG Key
+  git_gpg_key_id:
+    type: string
+    description: GPG key ID
+
+runs:
+  using: composite
+  steps:
+
+    - name: Import GPG key
+      if: ${{ inputs.git_gpg_key_id != '' }}
+      run: echo ${{ inputs.git_gpg_key }} | base64 --decode | gpg --batch --import
+
+    - name: Setup GIT
+      run: |
+        git config user.name ${{ inputs.git_user_name }}
+        git config user.email ${{ inputs.git_user_email }}
+        if [ "${{ inputs.git_gpg_key_id }}" != "" ]; then
+          git config commit.gpgsign true
+          git config user.signingkey ${{ inputs.git_gpg_key_id }}
+        fi
