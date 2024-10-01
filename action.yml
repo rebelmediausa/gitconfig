@@ -19,16 +19,17 @@ inputs:
   git_gpg_key:
     type: string
     description: GPG Key
+    required: true
   git_gpg_key_id:
     type: string
     description: GPG key ID
+    required: true
 
 runs:
   using: composite
   steps:
 
     - name: Import GPG key
-      if: ${{ inputs.git_gpg_key_id != '' }}
       shell: bash
       run: |
         echo -n "$GPG_KEY" | base64 --decode | gpg --import
@@ -40,7 +41,7 @@ runs:
       run: |
         git config user.name ${{ inputs.git_user_name }}
         git config user.email ${{ inputs.git_user_email }}
-        if [ "${{ inputs.git_gpg_key_id }}" != "" ]; then
-          git config commit.gpgsign true
-          git config user.signingkey ${{ inputs.git_gpg_key_id }}
-        fi
+        git config commit.gpgsign true
+        git config user.signingkey $GPG_KEY_ID
+      env:
+        GPG_KEY_ID: ${{ inputs.git_gpg_key_id }}
