@@ -2,8 +2,10 @@
 
 Configure GIT to use a set user account and sign with GPG.
 
-GPG key but be in base64 format.
-`gpg --export-secret-keys <GPPKEYID> | base64 > private.key`
+The GPG key must be base64 encoded:
+`gpg --export-secret-keys <GPG_KEY_ID> | base64 > private.key`
+
+Every input is passed to the shell quoted, so values with spaces (`git_user_name: Rebel Bot`) work as written.
 
 
 ## Usage
