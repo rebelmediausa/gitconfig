@@ -1,21 +1,34 @@
 version: 2
+
 updates:
-  - package-ecosystem: github-actions
-    directory: /
+  # GitHub Actions: minor/patch bumps are batched into one weekly PR; major
+  # bumps still get their own PR so they can be reviewed individually.
+  #
+  # Dependabot only reads the directories it is told about, so every directory
+  # holding an action.yml or a workflow is listed.
+  #
+  # Everything targets develop explicitly: master only ever receives merges
+  # from develop, and a dependency PR must never land on it directly.
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/"
+    target-branch: "develop"
     schedule:
       interval: "weekly"
-
-  - package-ecosystem: github-actions
-    directory: actions/restore_artifacts
-    schedule:
-      interval: "weekly"
-
-  - package-ecosystem: github-actions
-    directory: actions/save_artifacts
-    schedule:
-      interval: "weekly"
-
-  - package-ecosystem: github-actions
-    directory: actions/setup_environment
-    schedule:
-      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Supply-chain buffer: don't adopt a release in its first week so yanked or
+    # compromised releases have time to surface. Security updates are exempt.
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "ci"
