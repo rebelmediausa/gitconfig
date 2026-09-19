@@ -29,19 +29,29 @@ runs:
   using: composite
   steps:
 
+    # --batch so a key without a passphrase never waits for a prompt that a CI
+    # runner cannot answer.
     - name: Import GPG key
       shell: bash
       run: |
-        echo -n "$GPG_KEY" | base64 --decode | gpg --import
+        set -euo pipefail
+        printf '%s' "$GPG_KEY" | base64 --decode | gpg --batch --import
       env:
         GPG_KEY: ${{ inputs.git_gpg_key }}
 
+    # Every input reaches the shell through an environment variable and is
+    # quoted, never pasted into the script with ${{ }}. Pasting it in means a
+    # name with a space ("Rebel Bot") splits into two arguments, and an input
+    # containing shell syntax would be run as a command.
     - name: Setup GIT
       shell: bash
       run: |
-        git config user.name ${{ inputs.git_user_name }}
-        git config user.email ${{ inputs.git_user_email }}
+        set -euo pipefail
+        git config user.name "$GIT_USER_NAME"
+        git config user.email "$GIT_USER_EMAIL"
         git config commit.gpgsign true
-        git config user.signingkey $GPG_KEY_ID
+        git config user.signingkey "$GPG_KEY_ID"
       env:
+        GIT_USER_NAME: ${{ inputs.git_user_name }}
+        GIT_USER_EMAIL: ${{ inputs.git_user_email }}
         GPG_KEY_ID: ${{ inputs.git_gpg_key_id }}
