@@ -108,7 +108,10 @@ This action handles a private signing key, so:
   rejects an unpinned one.
 - `develop` and `master` accept changes only by pull request, with passing
   checks and signed commits. Force pushes are blocked and nobody can bypass
-  these rules. Only GitHub Actions can create or move release tags.
+  these rules.
+- Version tags (`vX.Y.Z`) can never be moved or deleted once created, and
+  releases are immutable: a published release's tag and files cannot change.
+  The major tag (`v1`) cannot be deleted; only the release workflow moves it.
 - Secret scanning with push protection, Dependabot, CodeQL and OpenSSF Scorecard
   are enabled.
 
